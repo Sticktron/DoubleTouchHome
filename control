@@ -1,0 +1,9 @@
+Package: com.sticktron.doubletouchhome
+Name: DoubleTouchHome
+Description: Double touch on Home event for the libactivator API.
+Version: 0.9.0
+Priority: optional
+Section: Addons (Activator)
+Architecture: iphoneos-arm
+Depends: mobilesubstrate, libactivator
+Author: Sticktron
