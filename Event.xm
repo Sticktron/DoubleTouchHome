@@ -18,7 +18,7 @@
 #define TouchIDFingerDown  	1
 #define TouchIDFingerHeld  	2
 #define TouchIDMatched     	3
-#define TouchIDNotMatched  	9
+#define TouchIDNotMatched  	(9||10)
 
 #define MAX_DELAY			0.5
 
@@ -27,7 +27,7 @@
 
 
 static NSString *kDoubleTouchHome_eventName = @"DoubleTouchHomeEvent";
-static CFTimeInterval timeOfLastFingerUpEvent;
+static CFTimeInterval timeOfLastTouch;
 
 
 
@@ -101,23 +101,21 @@ static CFTimeInterval timeOfLastFingerUpEvent;
 - (void)biometricEventMonitor:(SBUIBiometricEventMonitor *)arg1 handleBiometricEvent:(unsigned long long)event {
 	DebugLog(@"biometric event: %llu", event);
 	
-	if (event == TouchIDFingerUp) {
-		// check time since last TouchIDFingerUp event...
-		
+	if (event == TouchIDFingerDown) {
 		CFTimeInterval timeNow = CACurrentMediaTime();
-		DebugLog(@"last touch: %f | time now: %f", (double)timeOfLastFingerUpEvent, (double)timeNow);
+		DebugLog(@"last touch: %f | time now: %f", (double)timeOfLastTouch, (double)timeNow);
 		
-		CFTimeInterval delta = timeNow - timeOfLastFingerUpEvent;
+		CFTimeInterval delta = timeNow - timeOfLastTouch;
 		DebugLog(@"time since last touch = %f", (double)delta);
 		
-		if (delta <= MAX_DELAY) {
+		if (fabs(delta) <= MAX_DELAY) {
 			DebugLog(@"double touch detected >>> telling Activator ...");
 			LASendEventWithName(kDoubleTouchHome_eventName);
 		} else {
 			DebugLog(@"too much time has passed, cancel.");
 		}
 		
-		timeOfLastFingerUpEvent = timeNow;
+		timeOfLastTouch = timeNow;
 	}
 	
 	%orig;
@@ -131,6 +129,6 @@ static CFTimeInterval timeOfLastFingerUpEvent;
 //
 %ctor {
 	NSLog(@" DoubleTouchHome Activator Event loaded.");
-	timeOfLastFingerUpEvent = 0;
+	timeOfLastTouch = 0;
 }
 
